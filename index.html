@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Interactive Bloch Sphere</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+</head>
+
+<body>
+    <a-scene>
+        <!-- Camera & Controls -->
+        <a-camera position="0 1.6 4"></a-camera>
+        <a-sky color="#ECECEC"></a-sky>
+
+        <!-- Bloch Sphere -->
+        <a-sphere id="bloch-sphere" position="0 1 -3" radius="1.5" color="black" opacity="0.3" wireframe="true" wireframe-linewidth="10"></a-sphere>
+
+        <!-- Axes -->
+        <a-cylinder position="0 1 -3" radius="0.02" height="3" color="black"></a-cylinder> <!-- Z-axis -->
+        <a-cylinder position="0 1 -3" radius="0.02" height="3" color="black" rotation="0 0 90"></a-cylinder> <!-- X-axis -->
+        <a-cylinder position="0 1 -3" radius="0.02" height="3" color="black" rotation="90 0 0"></a-cylinder> <!-- Y-axis -->
+
+        <!-- Qubit Vector -->
+        <a-cylinder id="qubit-vector" position="0 1 -3" radius="0.05" height="1.5" color="blue">
+            <a-animation attribute="rotation" to="0 0 0" dur="1000" easing="ease-in-out"></a-animation>
+        </a-cylinder>
+
+        <!-- Labels for Quantum States -->
+        <a-text id="state-0" value="|0>" position="0 2.8 -3" align="center" color="black" scale="1.5 1.5 1"></a-text>
+        <a-text id="state-1" value="|1>" position="0 -0.8 -3" align="center" color="black" scale="1.5 1.5 1"></a-text>
+        <a-text id="state-plus" value="|+>" position="2 1 -3" align="center" color="black" scale="1.5 1.5 1"></a-text>
+        <a-text id="state-minus" value="|->" position="-2 1 -3" align="center" color="black" scale="1.5 1.5 1"></a-text>
+    </a-scene>
+
+    <!-- Control Buttons -->
+    <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
+        <button onclick="applyGate('X')">Apply X Gate</button>
+        <button onclick="applyGate('Y')">Apply Y Gate</button>
+        <button onclick="applyGate('Z')">Apply Z Gate</button>
+        <button onclick="applyGate('H')">Apply Hadamard Gate</button>
+    </div>
+
+    <script>
+        let qubitState = "|0⟩";  // Tracks current quantum state
+
+        function applyGate(gate) {
+            let vector = document.getElementById("qubit-vector");
+            let currentRotation = vector.getAttribute("rotation");
+
+            let newRotation;
+            if (gate === "X") {
+                newRotation = `${(currentRotation.x + 180) % 360} ${currentRotation.y} ${currentRotation.z}`;
+                qubitState = (qubitState === "|0⟩") ? "|1⟩" : "|0⟩"; // X flips |0⟩ ↔ |1⟩
+            } else if (gate === "Y") {
+                newRotation = `${currentRotation.x} ${(currentRotation.y + 180) % 360} ${currentRotation.z}`;
+                qubitState = (qubitState === "|0⟩") ? "|-i⟩" : "|i⟩"; // Y introduces phase
+            } else if (gate === "Z") {
+                newRotation = `${currentRotation.x} ${currentRotation.y} ${(currentRotation.z + 180) % 360}`;
+                qubitState = (qubitState === "|+⟩") ? "|-⟩" : "|+⟩"; // Z affects superposition
+            } else if (gate === "H") {
+                newRotation = `${(currentRotation.x + 90) % 360} ${(currentRotation.y + 180) % 360} ${(currentRotation.z + 90) % 360}`;
+                qubitState = (qubitState === "|0⟩") ? "|+⟩" : "|0⟩"; // H mixes states
+            }
+
+            vector.setAttribute("animation", `property: rotation; to: ${newRotation}; dur: 1000; easing: ease-in-out;`);
+            updateLabel(qubitState);
+        }
+
+        function updateLabel(state) {
+            document.getElementById("state-0").setAttribute("color", state === "|0⟩" ? "red" : "black");
+            document.getElementById("state-1").setAttribute("color", state === "|1⟩" ? "red" : "black");
+            document.getElementById("state-plus").setAttribute("color", state === "|+⟩" ? "red" : "black");
+            document.getElementById("state-minus").setAttribute("color", state === "|-⟩" ? "red" : "black");
+        }
+    </script>
+</body>
+
+</html>
