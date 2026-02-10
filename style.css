@@ -1,31 +1,404 @@
-.label {
-    position: absolute;
-    font-size: 20px;
-    font-weight: bold;
-    color: black;
-    transform: translate(-50%, -50%);
+/* Bloch Sphere Simulator - Layout and styling */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-#label-0 {
-    top: 20%; 
-    left: 50%;
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: #1a1a2e;
+  color: #e8e8e8;
+  min-height: 100vh;
 }
 
-#label-1 {
-    top: 80%; 
-    left: 50%;
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-#label-plus {
-    top: 50%; 
-    left: 80%;
+.header {
+  padding: 0.75rem 1rem;
+  background: #16213e;
+  border-bottom: 1px solid #0f3460;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
-#label-minus {
-    top: 50%; 
-    left: 20%;
+.header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
-.active {
-    color: red;
+.help-btn {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  background: #0f3460;
+  color: #e8e8e8;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.help-btn:hover {
+  background: #1a4a7a;
+  border-color: #1a4a7a;
+}
+
+.help-btn:focus {
+  outline: 2px solid #e94560;
+  outline-offset: 2px;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  min-height: 0;
+}
+
+.canvas-container {
+  flex: 1;
+  min-width: 0;
+  min-height: 300px;
+  position: relative;
+}
+
+#bloch-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+}
+
+.controls {
+  width: 280px;
+  flex-shrink: 0;
+  padding: 1rem;
+  background: #16213e;
+  border-left: 1px solid #0f3460;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.panel h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #a0a0c0;
+}
+
+.gate-panel .button-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.gate-btn {
+  padding: 0.6rem 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  background: #0f3460;
+  color: #e8e8e8;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.gate-btn:hover {
+  background: #1a4a7a;
+  border-color: #1a4a7a;
+}
+
+.gate-btn:focus {
+  outline: 2px solid #e94560;
+  outline-offset: 2px;
+}
+
+.gate-btn:active {
+  background: #0a2a4a;
+}
+
+.gate-description {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8rem;
+  color: #a0a0c0;
+  min-height: 2.5em;
+  line-height: 1.4;
+}
+
+.reset-panel .button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.undo-btn {
+  flex: 1;
+  min-width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  background: #0f3460;
+  color: #e8e8e8;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.undo-btn:hover:not(:disabled) {
+  background: #1a4a7a;
+  border-color: #1a4a7a;
+}
+
+.undo-btn:focus {
+  outline: 2px solid #e94560;
+  outline-offset: 2px;
+}
+
+.undo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reset-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  background: #0f3460;
+  color: #e8e8e8;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.reset-btn:hover {
+  background: #1a4a7a;
+  border-color: #1a4a7a;
+}
+
+.reset-btn:focus {
+  outline: 2px solid #e94560;
+  outline-offset: 2px;
+}
+
+.readout-panel .readout {
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.readout .label {
+  color: #a0a0c0;
+}
+
+.readout code {
+  font-family: ui-monospace, monospace;
+  background: #0f3460;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+.readout .axis-legend {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8rem;
+  color: #8080a0;
+}
+
+.guide-panel .guide-details {
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.guide-panel .guide-summary {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #a0a0c0;
+  list-style: none;
+}
+
+.guide-panel .guide-summary::-webkit-details-marker {
+  display: none;
+}
+
+.guide-panel .guide-summary::before {
+  content: "▶ ";
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.guide-panel .guide-details[open] .guide-summary::before {
+  transform: rotate(90deg);
+}
+
+.guide-content {
+  padding: 0 0.75rem 0.75rem 0.75rem;
+}
+
+.guide-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #c0c0d0;
+}
+
+.guide-steps li {
+  margin-bottom: 0.5rem;
+}
+
+.try-link {
+  padding: 0.1em 0.35em;
+  font-size: inherit;
+  font-family: inherit;
+  border: 1px solid #1a4a7a;
+  border-radius: 4px;
+  background: transparent;
+  color: #7ab8ff;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.try-link:hover {
+  background: #1a4a7a;
+  color: #e8e8e8;
+}
+
+.try-link:focus {
+  outline: 2px solid #e94560;
+  outline-offset: 2px;
+}
+
+.challenges-panel h2 {
+  margin-bottom: 0.5rem;
+}
+
+.challenges-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.challenge-card {
+  padding: 0.75rem;
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  background: rgba(15, 52, 96, 0.3);
+}
+
+.challenge-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.challenge-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.challenge-done {
+  font-size: 0.75rem;
+  color: #44cc88;
+}
+
+.challenge-desc {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #b0b0c0;
+}
+
+.challenge-feedback {
+  font-size: 0.82rem;
+  margin-bottom: 0.5rem;
+  min-height: 1.2em;
+}
+
+.challenge-feedback.success {
+  color: #44cc88;
+}
+
+.challenge-feedback.hint {
+  color: #e9a040;
+}
+
+.check-btn {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  background: #0f3460;
+  color: #e8e8e8;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.check-btn:hover:not(:disabled) {
+  background: #1a4a7a;
+  border-color: #1a4a7a;
+}
+
+.check-btn:focus {
+  outline: 2px solid #e94560;
+  outline-offset: 2px;
+}
+
+.check-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 768px) {
+  .main {
+    flex-direction: column;
+  }
+
+  .canvas-container {
+    min-height: 280px;
+    flex: 0 0 280px;
+  }
+
+  #bloch-canvas {
+    min-height: 280px;
+  }
+
+  .controls {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #0f3460;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .controls .panel {
+    min-width: 140px;
+  }
+
+  .gate-panel {
+    flex: 1;
+    min-width: 200px;
+  }
 }
